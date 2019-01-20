@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransferClient", "FileTransferClient\FileTransferClient.csproj", "{68D07F03-9E36-4169-BCFA-760461CC07CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransferServer", "FileTransferServer\FileTransferServer.csproj", "{26BB1BB7-3E36-4B51-A72D-F04C90ECA2DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTransfer", "FileTransfer\FileTransfer.csproj", "{4A6DF428-45F1-44DF-A987-5328633EAF77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68D07F03-9E36-4169-BCFA-760461CC07CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68D07F03-9E36-4169-BCFA-760461CC07CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68D07F03-9E36-4169-BCFA-760461CC07CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68D07F03-9E36-4169-BCFA-760461CC07CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26BB1BB7-3E36-4B51-A72D-F04C90ECA2DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26BB1BB7-3E36-4B51-A72D-F04C90ECA2DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26BB1BB7-3E36-4B51-A72D-F04C90ECA2DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26BB1BB7-3E36-4B51-A72D-F04C90ECA2DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A6DF428-45F1-44DF-A987-5328633EAF77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A6DF428-45F1-44DF-A987-5328633EAF77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A6DF428-45F1-44DF-A987-5328633EAF77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A6DF428-45F1-44DF-A987-5328633EAF77}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AB1A91A4-47D7-4CE4-947B-090E28A3FA48}
+	EndGlobalSection
+EndGlobal
