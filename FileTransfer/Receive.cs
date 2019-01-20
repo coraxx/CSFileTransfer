@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace FileTransfer
@@ -54,6 +56,9 @@ namespace FileTransfer
         public delegate void NewFileReceivedEventHandler(object sender, string fileName);
         public event NewFileReceivedEventHandler NewFileReceived;
 
+        public delegate void ChecksumErrorEventHandler(object sender, string message);
+        public event ChecksumErrorEventHandler ChecksumError;
+
         #endregion
 
         /// <summary>
@@ -95,14 +100,22 @@ namespace FileTransfer
 
                                 // Get file info from first packet
                                 int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                                // Header: 4 byte for file length (int) + 4 byte for file name length (int) + fileName
-                                int fileLen = BitConverter.ToInt32(buffer, 0);
-                                int fileNameLen = BitConverter.ToInt32(buffer, 4);
-                                string fileName = Encoding.ASCII.GetString(buffer, 4 + 4, fileNameLen);
+                                // Header: 4 bytes for file length (int) + 4 bytes for file name length (int) + fileName + 20 bytes checksum
+                                int headerOffset = 0;
+                                int fileLen = BitConverter.ToInt32(buffer, headerOffset);
+                                headerOffset += sizeof(int);
+                                int fileNameLen = BitConverter.ToInt32(buffer, headerOffset);
+                                headerOffset += sizeof(int);
+                                string fileName = Encoding.ASCII.GetString(buffer, headerOffset, fileNameLen);
+                                headerOffset += fileNameLen;
+                                byte[] checksumByte = new byte[20];
+                                headerOffset += checksumByte.Length;
+                                Array.Copy(buffer, headerOffset, checksumByte, 0, checksumByte.Length);
+                                bool checksumAvailable = checksumByte.All(singleByte => singleByte == 0);
 
                                 // Update status and progress and calculate progress percent increment
                                 StatusMessage?.Invoke(this, $"Receiving {fileName} on {ip}:{port} from {client.Client.RemoteEndPoint}");
-                                double progressBarIncrement = 100 / (fileLen / (double)buffer.Length);
+                                double progressBarIncrement = 100.0 / (Convert.ToDouble(fileLen) / BufferSize);
                                 int progressSingleIncrement = 0;
                                 _progress += progressBarIncrement;
                                 ProgressPercent?.Invoke(this, _progress);
@@ -110,7 +123,7 @@ namespace FileTransfer
                                 // Create file to safe incoming data to
                                 using (var output = File.Create(Path.Combine(destinationFolder, fileName)))
                                 {
-                                    output.Write(buffer, 4 + 4 + fileNameLen, bytesRead - (4 + 4 + fileNameLen));
+                                    output.Write(buffer, headerOffset, bytesRead - headerOffset);
                                     if (bytesRead >= buffer.Length)
                                     {
                                         while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
@@ -119,16 +132,32 @@ namespace FileTransfer
 
                                             // Update progress only every percent
                                             _progress += progressBarIncrement;
-                                            if (!(_progress > progressSingleIncrement)) continue;
+                                            if (!(_progress > progressSingleIncrement + 1)) continue;
                                             progressSingleIncrement = Convert.ToInt32(_progress);
                                             ProgressPercent?.Invoke(this, progressSingleIncrement);
                                         }
                                     }
                                 }
 
+                                if (checksumAvailable)
+                                {
+                                    using (var fileStream = new BufferedStream(File.OpenRead(Path.Combine(destinationFolder, fileName)), 32768))
+                                    {
+                                        SHA1Managed sha = new SHA1Managed();
+                                        byte[] checksumByteCalc = sha.ComputeHash(fileStream);
+                                        if (checksumByte != checksumByteCalc)
+                                        {
+                                            ChecksumError?.Invoke(this, $"sent: {checksumByte} != calc: {checksumByteCalc}");
+                                            StatusMessage?.Invoke(this, $"Checksum missmatch Sent:{checksumByte} | Calc: {checksumByteCalc}");
+                                        }
+                                        Debug.WriteLine(BitConverter.ToString(checksumByte).Replace("-", String.Empty).ToLower());
+                                    }
+                                }
+
                                 // Raise new file received event
                                 NewFileReceived?.Invoke(this, fileName);
                                 StatusMessage?.Invoke(this, "File received");
+                                ProgressPercent?.Invoke(this, 100);
                             }
 
                             break;
