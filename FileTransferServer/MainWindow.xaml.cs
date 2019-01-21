@@ -19,7 +19,7 @@ namespace FileTransferServer
         private double _progreesbarVal;
         public double ProgressbarVal
         {
-            get => _progreesbarVal;
+            get { return _progreesbarVal; }
             set
             {
                 _progreesbarVal = value;

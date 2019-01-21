@@ -21,7 +21,7 @@ namespace FileTransferClient
         private double _progreesbarVal;
         public double ProgressbarVal
         {
-            get => _progreesbarVal;
+            get { return _progreesbarVal; }
             set
             {
                 _progreesbarVal = value;
@@ -62,8 +62,8 @@ namespace FileTransferClient
             var result = dlg.ShowDialog();
             if (result == false) return;
             string filePath = dlg.FileName;
-
-            Task.Run(delegate { _send.SendFile(IPAddress.Loopback, 8080, filePath); });
+            bool calcChecksum = ChecksumCheckBox.IsChecked == true ? true : false;
+            Task.Run(delegate { _send.SendFile(IPAddress.Loopback, 8080, filePath, calcChecksum); });
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

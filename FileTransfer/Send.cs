@@ -19,7 +19,7 @@ namespace FileTransfer
         private int _bufferSize = 8192;
         public int BufferSize
         {
-            get => _bufferSize;
+            get { return _bufferSize; }
             set
             {
                 lock (_lockSending)

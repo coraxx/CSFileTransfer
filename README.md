@@ -4,16 +4,16 @@
 <!-- TOC -->
 
 - [README](#readme)
-    - [Overview](#overview)
-    - [About](#about)
-    - [Development Environment](#development-environment)
-    - [License](#license)
+  - [Overview](#overview)
+  - [About](#about)
+  - [Development Environment](#development-environment)
+  - [License](#license)
 
 <!-- /TOC -->
 
 ## About ##
 
-Server/Client file transfer via sockets with progress bar.
+Example application for Server/Client file transfer via sockets with progress bar.
 
 ## Development Environment ##
 

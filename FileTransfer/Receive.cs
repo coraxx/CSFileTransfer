@@ -20,7 +20,7 @@ namespace FileTransfer
         private int _bufferSize = 8192;
         public int BufferSize
         {
-            get => _bufferSize;
+            get { return _bufferSize; }
             set
             {
                 lock (_lockReceiving)
@@ -109,9 +109,9 @@ namespace FileTransfer
                                 string fileName = Encoding.ASCII.GetString(buffer, headerOffset, fileNameLen);
                                 headerOffset += fileNameLen;
                                 byte[] checksumByte = new byte[20];
-                                headerOffset += checksumByte.Length;
                                 Array.Copy(buffer, headerOffset, checksumByte, 0, checksumByte.Length);
-                                bool checksumAvailable = checksumByte.All(singleByte => singleByte == 0);
+                                headerOffset += checksumByte.Length;
+                                bool checksumAvailable = !checksumByte.All(singleByte => singleByte == 0);
 
                                 // Update status and progress and calculate progress percent increment
                                 StatusMessage?.Invoke(this, $"Receiving {fileName} on {ip}:{port} from {client.Client.RemoteEndPoint}");
@@ -139,24 +139,33 @@ namespace FileTransfer
                                     }
                                 }
 
+                                StatusMessage?.Invoke(this, "File received");
+
                                 if (checksumAvailable)
                                 {
+                                    StatusMessage?.Invoke(this, "File received - Calculating checksum...");
                                     using (var fileStream = new BufferedStream(File.OpenRead(Path.Combine(destinationFolder, fileName)), 32768))
                                     {
                                         SHA1Managed sha = new SHA1Managed();
                                         byte[] checksumByteCalc = sha.ComputeHash(fileStream);
-                                        if (checksumByte != checksumByteCalc)
+                                        string checksumCalc = BitConverter.ToString(checksumByteCalc).Replace("-", String.Empty).ToLower();
+                                        string checksumSent = BitConverter.ToString(checksumByte).Replace("-", String.Empty).ToLower();
+                                        Debug.WriteLine($"sent: {checksumSent} | calc: {checksumCalc}");
+
+                                        if (!Enumerable.SequenceEqual(checksumByte, checksumByteCalc))
                                         {
-                                            ChecksumError?.Invoke(this, $"sent: {checksumByte} != calc: {checksumByteCalc}");
-                                            StatusMessage?.Invoke(this, $"Checksum missmatch Sent:{checksumByte} | Calc: {checksumByteCalc}");
+                                            ChecksumError?.Invoke(this, $"sent: {checksumSent} != calc: {checksumCalc}");
+                                            StatusMessage?.Invoke(this, $"Checksum missmatch\nSent: {checksumSent}\nCalc: {checksumCalc}");
                                         }
-                                        Debug.WriteLine(BitConverter.ToString(checksumByte).Replace("-", String.Empty).ToLower());
+                                        else
+                                        {
+                                            StatusMessage?.Invoke(this, $"Checksum match\nSent: {checksumSent}\nCalc: {checksumCalc}");
+                                        }
                                     }
                                 }
 
                                 // Raise new file received event
                                 NewFileReceived?.Invoke(this, fileName);
-                                StatusMessage?.Invoke(this, "File received");
                                 ProgressPercent?.Invoke(this, 100);
                             }
 

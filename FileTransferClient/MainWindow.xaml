@@ -6,9 +6,10 @@
         mc:Ignorable="d" Loaded="MainWindow_OnLoaded"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="MainWindow" Height="350" Width="525">
-    <Grid>
-		<Button x:Name="SendButton" Content="Send file" Height="40" Width="120" VerticalAlignment="Bottom" Margin="10"
+	<Grid>
+		<Button x:Name="SendButton" Content="Send file" Height="40" Width="120" VerticalAlignment="Bottom" Margin="25"
 				Click="SendButton_Click"/>
+		<CheckBox x:Name="ChecksumCheckBox" VerticalAlignment="Bottom" Width="72" Height="15" Content="Checksum" Margin="5"/>
 		<ProgressBar x:Name="ProgressBarTransfer" Width="400" Height="25" Value="{Binding ProgressbarVal}" Margin="5"/>
 		<Label x:Name="StatusLabel" Content="Status" VerticalAlignment="Top" Margin="10" HorizontalAlignment="Center"/>
 	</Grid>
